@@ -267,12 +267,12 @@ footer strong{color:rgba(255,255,255,0.75);font-weight:600}
       <div class="card-body">
         <div class="field-row-3">
           <div class="field-group">
-            <label>Mouza Name</label>
+            <label>Mouza Name <span style="color:var(--danger-text);font-size:12px">*</span></label>
             <select id="selMouza"><option value="">— Select Mouza —</option></select>
           </div>
           <div class="field-group">
-            <label>Classification</label>
-            <select id="selClass" disabled><option value="">— Select Classification —</option></select>
+            <label>Classification <span class="opt">(optional)</span></label>
+            <select id="selClass" disabled><option value="">— All Classifications —</option></select>
           </div>
           <div class="field-group">
             <label>Khasra No. <span class="opt">(optional)</span></label>
@@ -445,7 +445,7 @@ uniqueMouzas.forEach(m => {
 
 selMouza.addEventListener('change', () => {
   const m = selMouza.value;
-  selClass.innerHTML = '<option value="">— Select Classification —</option>';
+  selClass.innerHTML = '<option value="">— All Classifications —</option>';
   inpKhasra.value = '';
   resultsDiv.innerHTML = '';
   btnClear.style.display = 'none';
@@ -464,63 +464,109 @@ selMouza.addEventListener('change', () => {
 
 function doSearch() {
   const mouza = selMouza.value.trim();
-  const cls = selClass.value.trim();
+  const cls   = selClass.value.trim();
   const khasra = inpKhasra.value.trim();
-  if (!mouza) { showMsg('info','Select a Mouza','Please select a Mouza Name to begin your search.'); return; }
-  if (!cls) { showMsg('info','Select Classification','Please select a Classification type after choosing a Mouza.'); return; }
-  let pool = DATA.filter(d => d.mouza === mouza && d.classification === cls);
+
+  // Mouza is mandatory
+  if (!mouza) {
+    showMsg('info', 'Select a Mouza', 'Please select a Mouza Name to begin your search.');
+    return;
+  }
+
   btnClear.style.display = 'block';
+
+  // Case 1: Khasra entered (with or without classification)
   if (khasra) {
-    const withK = pool.filter(d => d.khasras.length > 0 && d.khasras.some(k => k.toLowerCase() === khasra.toLowerCase()));
-    const gen = pool.filter(d => d.khasras.length === 0);
-    const results = withK.length > 0 ? withK : gen;
-    if (results.length === 0) showMsg('warning','No Records Found','No DC Rate found for <strong>'+mouza+'</strong> — <strong>'+cls+'</strong> — Khasra No. <strong>'+khasra+'</strong>.');
-    else showResults(results, mouza, cls, khasra, withK.length > 0);
+    // Pool: filter by mouza (and optionally class)
+    const pool = cls
+      ? DATA.filter(d => d.mouza === mouza && d.classification === cls)
+      : DATA.filter(d => d.mouza === mouza);
+
+    // Find records that explicitly list this khasra
+    const exactMatches = pool.filter(d => d.khasras.length > 0 && d.khasras.some(k => k.toLowerCase() === khasra.toLowerCase()));
+
+    if (exactMatches.length > 0) {
+      // Show exact khasra matches
+      showResults(exactMatches, mouza, cls, khasra, true);
+    } else {
+      // Khasra not found in any specific list — check if it exists at all for this mouza
+      const allMouzaRecords = DATA.filter(d => d.mouza === mouza);
+      const khasraExistsAnywhere = allMouzaRecords.some(d => d.khasras.some(k => k.toLowerCase() === khasra.toLowerCase()));
+
+      if (!khasraExistsAnywhere) {
+        // Khasra is not present in any khasra list — prompt to select classification
+        showMsg('warning', 'Khasra Not Present',
+          'Khasra No. <strong>' + khasra + '</strong> is not listed individually for Mouza <strong>' + mouza + '</strong>. Please select a <strong>Classification</strong> to view the general DC rate.');
+      } else {
+        // It exists but not in the filtered pool (wrong class selected)
+        showMsg('info', 'Khasra Not in Selected Classification',
+          'Khasra No. <strong>' + khasra + '</strong> was not found under the selected classification. Try changing the Classification or leave it blank.');
+      }
+    }
+    return;
+  }
+
+  // Case 2: No Khasra — Classification must be selected
+  if (!cls) {
+    // Show all classifications for this mouza as summary
+    const pool = DATA.filter(d => d.mouza === mouza);
+    if (pool.length === 0) {
+      showMsg('warning', 'No Records Found', 'No DC Rate records found for Mouza <strong>' + mouza + '</strong>.');
+    } else {
+      showResults(pool, mouza, '', '', false);
+    }
+    return;
+  }
+
+  // Case 3: Mouza + Classification only
+  const pool = DATA.filter(d => d.mouza === mouza && d.classification === cls);
+  if (pool.length === 0) {
+    showMsg('warning', 'No Records Found', 'No DC Rate found for <strong>' + mouza + '</strong> — <strong>' + cls + '</strong>.');
   } else {
-    if (pool.length === 0) showMsg('warning','No Records Found','No DC Rate found for <strong>'+mouza+'</strong> and Classification <strong>'+cls+'</strong>.');
-    else showResults(pool, mouza, cls, '', false);
+    showResults(pool, mouza, cls, '', false);
   }
 }
 
 function showResults(rows, mouza, cls, khasra, exactMatch) {
-  const label = khasra ? mouza+' · '+cls+' · Khasra '+khasra : mouza+' · '+cls;
-  const sub = khasra ? (exactMatch ? 'Exact Khasra match found' : 'General rate — Khasra not individually listed') : 'All entries for this Mouza & Classification';
+  let label, sub;
+  if (khasra && exactMatch) {
+    label = mouza + (cls ? ' · ' + cls : '') + ' · Khasra ' + khasra;
+    sub = 'Exact Khasra match found';
+  } else if (cls) {
+    label = mouza + ' · ' + cls;
+    sub = 'General rate for this Mouza & Classification';
+  } else {
+    label = mouza + ' — All Classifications';
+    sub = 'Showing all available classifications for this Mouza';
+  }
+
   let html = '<div class="result-block" style="margin-top:1rem">';
-  html += '<div class="result-header"><div><h3>'+label+'</h3><p>'+sub+'</p></div><span class="result-count">'+rows.length+' record'+(rows.length!==1?'s':'')+'</span></div>';
-  html += '<table class="rtable"><thead><tr><th>Mouza</th><th>Classification</th><th>Khasra</th><th>DC Rate (Rs./Marla)</th></tr></thead><tbody>';
+  html += '<div class="result-header"><div><h3>' + label + '</h3><p>' + sub + '</p></div><span class="result-count">' + rows.length + ' record' + (rows.length !== 1 ? 's' : '') + '</span></div>';
+  html += '<table class="rtable"><thead><tr><th>Classification</th><th>DC Rate (Rs. / Marla)</th></tr></thead><tbody>';
   rows.forEach(r => {
-    let khasraCell = '<span class="td-khasra">General (all Khasra)</span>';
-    if (r.khasras.length > 0) {
-      if (khasra && exactMatch) khasraCell = '<span class="td-khasra">'+khasra+'</span>';
-      else {
-        const shown = r.khasras.slice(0,6).join(', ');
-        const more = r.khasras.length > 6 ? ' <span style="color:var(--gold-mid);font-weight:700">+'+(r.khasras.length-6)+' more</span>' : '';
-        khasraCell = '<span class="td-khasra">'+shown+more+'</span>';
-      }
-    }
-    html += '<tr><td class="td-mouza">'+r.mouza+'</td><td><span class="td-class">'+r.classification+'</span></td><td>'+khasraCell+'</td><td class="td-rate">Rs. '+r.rate.toLocaleString('en-PK')+'</td></tr>';
+    html += '<tr><td><span class="td-class">' + r.classification + '</span></td><td class="td-rate">Rs. ' + r.rate.toLocaleString('en-PK') + '</td></tr>';
   });
   html += '</tbody></table></div>';
   resultsDiv.innerHTML = html;
 }
 
 function showMsg(type, title, body) {
-  const icon = type==='warning'
+  const icon = type === 'warning'
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="#6A6560" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
-  resultsDiv.innerHTML = '<div class="msg-box '+type+'" style="margin-top:1rem"><div class="msg-icon">'+icon+'</div><div class="msg-text"><h4>'+title+'</h4><p>'+body+'</p></div></div>';
+  resultsDiv.innerHTML = '<div class="msg-box ' + type + '" style="margin-top:1rem"><div class="msg-icon">' + icon + '</div><div class="msg-text"><h4>' + title + '</h4><p>' + body + '</p></div></div>';
 }
 
 function clearSearch() {
   selMouza.value = '';
-  selClass.innerHTML = '<option value="">— Select Classification —</option>';
+  selClass.innerHTML = '<option value="">— All Classifications —</option>';
   selClass.disabled = true;
   inpKhasra.value = '';
   resultsDiv.innerHTML = '';
   btnClear.style.display = 'none';
 }
 
-document.getElementById('inpKhasra').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+document.getElementById('inpKhasra').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
 
 /* ===== MARLA CALCULATOR ===== */
 function calcMarlaValue() {
