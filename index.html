@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,13 +54,7 @@ header p.sub{font-size:13px;color:rgba(255,255,255,0.55);font-weight:300;line-he
 .tab-panel.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-/* ===== STATS BAR ===== */
-.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
-.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1rem;box-shadow:var(--shadow)}
-.stat-icon{width:44px;height:44px;background:var(--green-pale);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--green-light)}
-.stat-icon svg{width:22px;height:22px}
-.stat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:4px}
-.stat-value{font-family:'EB Garamond',serif;font-size:1.75rem;font-weight:500;color:var(--ink);line-height:1}
+
 
 /* ===== CARD ===== */
 .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:1.5rem}
@@ -199,7 +194,6 @@ footer strong{color:rgba(255,255,255,0.75);font-weight:600}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:900px){
-  .stats-bar{grid-template-columns:repeat(2,1fr)}
   .tax-3col{grid-template-columns:1fr}
   .marla-grid{grid-template-columns:1fr 1fr}
   .grand-grid{grid-template-columns:1fr}
@@ -210,7 +204,6 @@ footer strong{color:rgba(255,255,255,0.75);font-weight:600}
   .tab-nav-inner{padding:0 1rem;overflow-x:auto}
   .main{padding:1.5rem 1.25rem 4rem}
   .card-body{padding:1.25rem}
-  .stats-bar{grid-template-columns:1fr 1fr;gap:0.75rem}
   .field-row,.field-row-3{grid-template-columns:1fr}
   .marla-grid{grid-template-columns:1fr}
   .status-grid{grid-template-columns:1fr}
@@ -263,26 +256,6 @@ footer strong{color:rgba(255,255,255,0.75);font-weight:600}
 
   <!-- ===== TAB 1: URBAN DC RATE ===== -->
   <div class="tab-panel active" id="panel-urban">
-
-    <!-- Stats -->
-    <div class="stats-bar">
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-        <div><div class="stat-label">Total Records</div><div class="stat-value">200</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
-        <div><div class="stat-label">Mouza Names</div><div class="stat-value">127</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
-        <div><div class="stat-label">Classifications</div><div class="stat-value">6</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-        <div><div class="stat-label">Fiscal Year</div><div class="stat-value" style="font-size:1.3rem">2024‑25</div></div>
-      </div>
-    </div>
 
     <!-- DC Lookup Card -->
     <div class="card">
