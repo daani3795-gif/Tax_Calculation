@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mutation Tax Calculator — Revenue Department Haripur</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1A3A2A;--green-mid:#245235;--green-light:#2D6A45;--green-accent:#3A8A5A;--green-pale:#EAF3EE;--green-border:#9DCFB0;
+  --gold:#B8962E;--gold-light:#F7F0DC;--gold-mid:#9A7A20;
+  --ink:#14110E;--ink-soft:#2E2B27;--muted:#6A6560;
+  --surface:#F5F1EB;--surface2:#EDE8DC;--surface3:#E2DBD0;
+  --border:#CFC8B8;--border-light:#E5DDD0;
+  --danger-bg:#FDF1F0;--danger-text:#8B2020;--danger-border:#E8A0A0;
+  --fed:#1A2A4A;--fed-light:#EAF0F8;--fed-border:#85B7EB;--fed-mid:#185FA5;
+  --seller:#6B1A1A;--seller-light:#FDF0F0;--seller-border:#E8A0A0;
+  --shadow:0 2px 24px rgba(20,17,14,0.09);
+  --radius:12px;
+}
+
+body{font-family:'Source Sans 3',sans-serif;background:var(--surface);color:var(--ink);min-height:100vh;font-size:16px;line-height:1.5}
+
+/* ===== HEADER ===== */
+header{background:var(--green);position:relative;overflow:hidden;border-bottom:3px solid var(--gold)}
+.header-top-bar{background:rgba(0,0,0,0.35);padding:7px 0;font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:0.07em;text-align:center;text-transform:uppercase}
+.header-inner{max-width:1100px;margin:0 auto;padding:1.6rem 2.5rem;display:flex;align-items:center;gap:2rem;position:relative;z-index:1}
+.header-emblem{width:72px;height:72px;flex-shrink:0;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px}
+.header-text{flex:1}
+.header-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(184,150,46,0.25);border:1px solid rgba(184,150,46,0.5);border-radius:4px;padding:4px 12px;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+header h1{font-family:'EB Garamond',serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:600;color:#fff;line-height:1.15;margin-bottom:4px}
+header h1 em{color:var(--gold);font-style:normal}
+header p.sub{font-size:13px;color:rgba(255,255,255,0.55);font-weight:300;line-height:1.6;max-width:600px}
+.header-seal{position:absolute;right:2rem;top:50%;transform:translateY(-50%);opacity:0.05;font-size:120px;pointer-events:none}
+
+/* ===== TAB NAV ===== */
+.tab-nav{background:var(--green-mid);border-bottom:1px solid rgba(255,255,255,0.08);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.25)}
+.tab-nav-inner{max-width:1100px;margin:0 auto;padding:0 2.5rem;display:flex;align-items:stretch;gap:0}
+.tab-btn{padding:0 28px;height:52px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,0.6);cursor:pointer;letter-spacing:0.04em;border:none;background:transparent;border-bottom:3px solid transparent;transition:all 0.2s;display:flex;align-items:center;gap:9px;position:relative;white-space:nowrap}
+.tab-btn svg{width:16px;height:16px;opacity:0.7;transition:opacity 0.2s}
+.tab-btn:hover{color:rgba(255,255,255,0.85)}
+.tab-btn.active{color:#fff;border-bottom-color:var(--gold);background:rgba(255,255,255,0.06)}
+.tab-btn.active svg{opacity:1}
+.tab-badge{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;background:rgba(184,150,46,0.25);border:1px solid rgba(184,150,46,0.45);color:var(--gold);padding:2px 8px;border-radius:3px;margin-left:4px}
+.tab-badge.empty{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.4)}
+
+/* ===== MAIN ===== */
+.main{max-width:1100px;margin:0 auto;padding:2.25rem 2.5rem 5rem}
+
+/* ===== TAB PANELS ===== */
+.tab-panel{display:none;animation:fadeIn 0.22s ease}
+.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== STATS BAR ===== */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1rem;box-shadow:var(--shadow)}
+.stat-icon{width:44px;height:44px;background:var(--green-pale);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--green-light)}
+.stat-icon svg{width:22px;height:22px}
+.stat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:4px}
+.stat-value{font-family:'EB Garamond',serif;font-size:1.75rem;font-weight:500;color:var(--ink);line-height:1}
+
+/* ===== CARD ===== */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:1.5rem}
+.card-header{background:var(--green);padding:1.1rem 1.5rem;display:flex;align-items:center;gap:0.75rem}
+.card-header svg{width:18px;height:18px;color:var(--gold);flex-shrink:0}
+.card-header h2{font-family:'EB Garamond',serif;font-size:1.2rem;font-weight:500;color:#fff;letter-spacing:0.01em}
+.card-header .card-badge{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;background:rgba(184,150,46,0.2);border:1px solid rgba(184,150,46,0.4);color:var(--gold);padding:3px 10px;border-radius:4px}
+.card-body{padding:1.75rem}
+
+/* ===== FORM FIELDS ===== */
+.field-group{display:flex;flex-direction:column;gap:7px;margin-bottom:1.2rem}
+.field-group:last-child{margin-bottom:0}
+label{font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
+label .opt{font-weight:400;font-style:italic;letter-spacing:0;text-transform:none;color:#BBB;font-size:11px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+
+select,input[type="text"],input[type="number"]{
+  height:50px;border:2px solid var(--border);border-radius:10px;padding:0 16px;
+  font-family:'Source Sans 3',sans-serif;font-size:15.5px;color:var(--ink);background:#fff;
+  outline:none;transition:border-color 0.15s,box-shadow 0.15s;-webkit-appearance:none;appearance:none;width:100%
+}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236A6560' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+select:focus,input:focus{border-color:var(--green-accent);box-shadow:0 0 0 4px rgba(45,106,69,0.1)}
+select:disabled{opacity:0.4;cursor:not-allowed;background-color:var(--surface2)}
+
+.prefix-wrap{position:relative}
+.prefix-wrap .prefix{position:absolute;left:0;top:0;bottom:0;width:52px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);background:var(--surface2);border-right:2px solid var(--border);border-radius:10px 0 0 10px;pointer-events:none}
+.prefix-wrap input{padding-left:60px}
+
+/* ===== BUTTON ===== */
+.btn-primary{width:100%;height:50px;background:var(--green);color:#fff;border:none;border-radius:10px;font-family:'Source Sans 3',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:0.04em;transition:background 0.15s,transform 0.1s;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:1rem}
+.btn-primary:hover{background:var(--green-light)}
+.btn-primary:active{transform:scale(0.99)}
+.btn-primary svg{width:18px;height:18px}
+.btn-secondary{width:100%;height:42px;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:10px;font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s;display:none;margin-top:8px}
+.btn-secondary:hover{background:var(--surface2)}
+
+/* ===== DC RESULTS TABLE ===== */
+.result-block{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);animation:fadeUp 0.22s ease;box-shadow:var(--shadow)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.result-header{background:var(--ink-soft);padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap}
+.result-header h3{font-family:'EB Garamond',serif;font-size:1.1rem;color:#fff;font-weight:500;margin-bottom:3px}
+.result-header p{font-size:12px;color:rgba(255,255,255,0.45)}
+.result-count{background:rgba(184,150,46,0.25);border:1px solid rgba(184,150,46,0.5);color:var(--gold);font-size:12px;font-weight:700;padding:4px 12px;border-radius:5px}
+table.rtable{width:100%;border-collapse:collapse;font-size:14px}
+table.rtable thead tr{background:var(--surface2);border-bottom:2px solid var(--border)}
+table.rtable thead th{padding:12px 18px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+table.rtable tbody tr{border-bottom:1px solid var(--border-light);transition:background 0.1s;background:#fff}
+table.rtable tbody tr:last-child{border-bottom:none}
+table.rtable tbody tr:hover{background:var(--green-pale)}
+table.rtable tbody td{padding:14px 18px;color:var(--ink);vertical-align:middle}
+.td-mouza{font-weight:700;font-size:14.5px}
+.td-class{display:inline-flex;align-items:center;background:var(--green-pale);border:1px solid var(--green-border);border-radius:5px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--green)}
+.td-khasra{font-size:13px;color:var(--muted);font-family:monospace}
+.td-rate{font-weight:800;color:var(--green-light);font-size:15.5px}
+
+.msg-box{border-radius:var(--radius);padding:1.25rem 1.5rem;display:flex;align-items:flex-start;gap:14px;animation:fadeUp 0.2s ease}
+.msg-box.warning{background:var(--danger-bg);border:1px solid var(--danger-border)}
+.msg-box.info{background:var(--surface2);border:1px solid var(--border)}
+.msg-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.msg-box.warning .msg-icon{background:#f5c6c6}
+.msg-box.info .msg-icon{background:var(--surface3)}
+.msg-icon svg{width:18px;height:18px}
+.msg-text h4{font-size:14.5px;font-weight:700;margin-bottom:4px}
+.msg-box.warning .msg-text h4{color:var(--danger-text)}
+.msg-box.info .msg-text h4{color:var(--ink-soft)}
+.msg-text p{font-size:13.5px;color:var(--muted);line-height:1.55}
+
+/* ===== TAX CALCULATOR SECTION ===== */
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.9rem;display:flex;align-items:center;gap:10px}
+.section-label::after{content:'';flex:1;height:1.5px;background:var(--border)}
+
+.marla-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.3rem}
+.total-market-display{background:var(--green-pale);border:2px solid var(--green-border);border-radius:10px;height:50px;display:flex;align-items:center;padding:0 16px;font-size:15.5px;font-weight:800;color:var(--green);letter-spacing:0.01em}
+
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.3rem}
+select.seller-sel{border-color:#E8A0A0;background-color:#FFF8F8}
+select.buyer-sel{border-color:var(--fed-border);background-color:#F8FBFF}
+select.seller-sel:focus{border-color:var(--seller);box-shadow:0 0 0 4px rgba(107,26,26,0.1)}
+select.buyer-sel:focus{border-color:var(--fed-mid);box-shadow:0 0 0 4px rgba(24,95,165,0.1)}
+
+.calc-placeholder{text-align:center;padding:3rem 1.5rem;color:var(--muted);font-size:14px;line-height:1.7}
+.calc-placeholder svg{width:44px;height:44px;margin:0 auto 1rem;display:block;opacity:0.2}
+.calc-placeholder strong{display:block;font-size:15px;color:var(--ink-soft);margin-bottom:6px}
+
+/* ===== TAX OUTPUT BOXES ===== */
+.prov-box{background:var(--green-pale);border:1.5px solid var(--green-border);border-radius:10px;padding:1.3rem}
+.fed-box{background:var(--fed-light);border:1.5px solid var(--fed-border);border-radius:10px;padding:1.3rem}
+.seller-box{background:var(--seller-light);border:1.5px solid var(--seller-border);border-radius:10px;padding:1.3rem}
+
+.tbox-title{font-size:11px;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;margin-bottom:0.85rem;padding-bottom:0.65rem;border-bottom:1.5px solid;display:flex;align-items:center;gap:7px}
+.prov-box .tbox-title{color:var(--green);border-color:var(--green-border)}
+.fed-box .tbox-title{color:var(--fed-mid);border-color:var(--fed-border)}
+.seller-box .tbox-title{color:var(--seller);border-color:var(--seller-border)}
+.tbox-who{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:3px;font-weight:700;color:#fff}
+
+.tbox-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px dashed rgba(0,0,0,0.07)}
+.tbox-row:last-of-type{border-bottom:none}
+.tbox-row-label{font-size:13.5px;color:var(--ink-soft);font-weight:500}
+.tbox-row-pct{font-size:11px;color:var(--muted);margin-top:2px}
+.tbox-row-val{font-size:15px;font-weight:700;color:var(--ink)}
+
+.tbox-total{display:flex;align-items:center;justify-content:space-between;margin-top:0.8rem;padding:0.7rem 1rem;border-radius:8px}
+.prov-box .tbox-total{background:var(--green);color:#fff}
+.fed-box .tbox-total{background:var(--fed);color:#fff}
+.seller-box .tbox-total{background:var(--seller);color:#fff}
+.tbox-total-label{font-size:12.5px;font-weight:700;letter-spacing:0.03em}
+.tbox-total-val{font-size:18px;font-weight:700;font-family:'EB Garamond',serif}
+
+.tax-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.1rem}
+
+/* ===== GRAND TOTALS ===== */
+.grand-totals{background:var(--ink);border-radius:10px;padding:1.5rem 1.75rem;animation:fadeUp 0.3s ease;margin-top:0.5rem}
+.grand-title{font-family:'EB Garamond',serif;font-size:1.1rem;color:#fff;font-weight:500;margin-bottom:1.1rem;display:flex;align-items:center;gap:10px}
+.grand-title::before{content:'';display:block;width:4px;height:18px;background:var(--gold);border-radius:2px}
+.grand-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grand-card{border-radius:10px;padding:1.1rem 1.25rem}
+.grand-card.buyer{background:rgba(45,106,69,0.35);border:1px solid rgba(100,180,130,0.3)}
+.grand-card.seller{background:rgba(139,32,32,0.3);border:1px solid rgba(232,160,160,0.3)}
+.grand-card-lbl{font-size:11px;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;margin-bottom:8px}
+.grand-card.buyer .grand-card-lbl{color:#8DD4AA}
+.grand-card.seller .grand-card-lbl{color:#F09595}
+.grand-card-val{font-family:'EB Garamond',serif;font-size:2rem;font-weight:500;color:#fff;line-height:1}
+.grand-card-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:7px}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{background:#fff;border:1.5px dashed var(--border);border-radius:var(--radius);padding:4rem 2rem;text-align:center}
+.empty-state svg{width:52px;height:52px;color:var(--border);margin:0 auto 1.25rem;display:block}
+.empty-state h3{font-family:'EB Garamond',serif;font-size:1.4rem;font-weight:500;color:var(--muted);margin-bottom:8px}
+.empty-state p{font-size:14px;color:var(--muted);max-width:420px;margin:0 auto;line-height:1.65}
+.coming-soon-badge{display:inline-flex;align-items:center;gap:7px;background:var(--gold-light);border:1px solid var(--gold);border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--gold-mid);margin-top:1.25rem}
+
+/* ===== FOOTER ===== */
+footer{background:var(--ink);color:rgba(255,255,255,0.4);text-align:center;padding:1.4rem;font-size:12px;letter-spacing:0.04em;border-top:3px solid var(--gold)}
+footer strong{color:rgba(255,255,255,0.75);font-weight:600}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
+  .tax-3col{grid-template-columns:1fr}
+  .marla-grid{grid-template-columns:1fr 1fr}
+  .grand-grid{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .header-inner{padding:1.2rem 1.25rem}
+  .header-emblem{width:56px;height:56px;font-size:22px}
+  .tab-nav-inner{padding:0 1rem;overflow-x:auto}
+  .main{padding:1.5rem 1.25rem 4rem}
+  .card-body{padding:1.25rem}
+  .stats-bar{grid-template-columns:1fr 1fr;gap:0.75rem}
+  .field-row,.field-row-3{grid-template-columns:1fr}
+  .marla-grid{grid-template-columns:1fr}
+  .status-grid{grid-template-columns:1fr}
+  .tab-btn{padding:0 16px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div style="background:rgba(0,0,0,0.6);padding:7px 0;font-size:11.5px;color:rgba(255,255,255,0.5);letter-spacing:0.07em;text-align:center;text-transform:uppercase;background:linear-gradient(to right,#0e1f17,#1a3a2a,#0e1f17)">
+  Government of Khyber Pakhtunkhwa &nbsp;|&nbsp; Board of Revenue &nbsp;|&nbsp; District Haripur
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="header-emblem">⚖️</div>
+    <div class="header-text">
+      <div class="header-badge">Revenue Department — Haripur</div>
+      <h1>Mutation Tax <em>Calculator</em></h1>
+      <p class="sub">DC Rate Lookup &amp; Provincial / Federal Tax Calculator for Property Mutation — District Haripur, KPK</p>
+    </div>
+  </div>
+  <div class="header-seal">⚜</div>
+</header>
+
+<!-- TAB NAVIGATION -->
+<div class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" onclick="switchTab('urban')" id="tab-urban">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+      Urban DC Rate
+      <span class="tab-badge">DC Lookup</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('rural')" id="tab-rural">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Rural DC Rate
+      <span class="tab-badge empty">Coming Soon</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('tax')" id="tab-tax">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>
+      Tax Calculation
+      <span class="tab-badge">Calculator</span>
+    </button>
+  </div>
+</div>
+
+<main class="main">
+
+  <!-- ===== TAB 1: URBAN DC RATE ===== -->
+  <div class="tab-panel active" id="panel-urban">
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div><div class="stat-label">Total Records</div><div class="stat-value">200</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+        <div><div class="stat-label">Mouza Names</div><div class="stat-value">127</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+        <div><div class="stat-label">Classifications</div><div class="stat-value">6</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <div><div class="stat-label">Fiscal Year</div><div class="stat-value" style="font-size:1.3rem">2024‑25</div></div>
+      </div>
+    </div>
+
+    <!-- DC Lookup Card -->
+    <div class="card">
+      <div class="card-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <h2>Urban DC Rate Lookup</h2>
+        <div class="card-badge">Search &amp; Lookup</div>
+      </div>
+      <div class="card-body">
+        <div class="field-row-3">
+          <div class="field-group">
+            <label>Mouza Name</label>
+            <select id="selMouza"><option value="">— Select Mouza —</option></select>
+          </div>
+          <div class="field-group">
+            <label>Classification</label>
+            <select id="selClass" disabled><option value="">— Select Classification —</option></select>
+          </div>
+          <div class="field-group">
+            <label>Khasra No. <span class="opt">(optional)</span></label>
+            <input type="text" id="inpKhasra" placeholder="e.g. 101, 245/1" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <button class="btn-primary" onclick="doSearch()" style="margin-top:0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Search DC Rate
+          </button>
+          <button class="btn-secondary" id="btnClear" onclick="clearSearch()" style="display:none;margin-top:0;height:50px">✕ Clear Search</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results" style="margin-top:0.25rem"></div>
+
+    <!-- Quick tip -->
+    <div style="background:var(--gold-light);border:1px solid rgba(184,150,46,0.35);border-radius:10px;padding:1rem 1.25rem;display:flex;gap:12px;align-items:flex-start;margin-top:1.5rem">
+      <span style="font-size:20px;line-height:1">💡</span>
+      <div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-mid);margin-bottom:4px">Tip</div>
+        <div style="font-size:13.5px;color:var(--ink-soft);line-height:1.55">Select a Mouza, then its Classification. Optionally enter a Khasra number for a specific rate. The found DC Rate can then be used in the <strong>Tax Calculation</strong> tab.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 2: RURAL DC RATE ===== -->
+  <div class="tab-panel" id="panel-rural">
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <h3>Rural DC Rate Data Coming Soon</h3>
+      <p>The Rural DC Rate lookup is being prepared. Data for rural Mouzas and their district collector rates will be added here. Check back soon.</p>
+      <div class="coming-soon-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Under Preparation
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 3: TAX CALCULATION ===== -->
+  <div class="tab-panel" id="panel-tax">
+
+    <div class="card">
+      <div class="card-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>
+        <h2>Mutation Tax Calculator</h2>
+        <div class="card-badge">Provincial &amp; Federal</div>
+      </div>
+      <div class="card-body">
+
+        <!-- Property Value -->
+        <div class="section-label">Step 1 — Property Value</div>
+        <div class="marla-grid">
+          <div class="field-group" style="margin-bottom:0">
+            <label>Rate per Marla (Rs.)</label>
+            <div class="prefix-wrap">
+              <span class="prefix">Rs.</span>
+              <input type="number" id="inpRatePerMarla" placeholder="e.g. 250,000" min="0" oninput="calcMarlaValue()" />
+            </div>
+          </div>
+          <div class="field-group" style="margin-bottom:0">
+            <label>Total Marlas</label>
+            <input type="number" id="inpMarlas" placeholder="e.g. 8" min="0" step="0.5" oninput="calcMarlaValue()" />
+          </div>
+          <div class="field-group" style="margin-bottom:0">
+            <label>Calculated Market Value</label>
+            <div class="total-market-display" id="totalMarketDisplay">Rs. —</div>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin:0.9rem 0;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase">— OR enter market value directly —</div>
+
+        <div class="field-group">
+          <label>Market / Declared Value (Rs.)</label>
+          <div class="prefix-wrap">
+            <span class="prefix">Rs.</span>
+            <input type="number" id="inpMarket" placeholder="e.g. 5,000,000" min="0" oninput="onManualMarket()" />
+          </div>
+        </div>
+
+        <!-- Filer Status -->
+        <div class="section-label" style="margin-top:0.5rem">Step 2 — Taxpayer / Filer Status</div>
+        <div class="status-grid">
+          <div class="field-group" style="margin-bottom:0">
+            <label>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="color:#6B1A1A"><circle cx="12" cy="12" r="10"/></svg>
+              Seller Status — Sec. 236-C
+            </label>
+            <select id="selSeller" class="seller-sel" onchange="calcTax()">
+              <option value="filer">Filer — 4.5%</option>
+              <option value="latefiler">Late Filer — 7.5%</option>
+              <option value="nonfiler">Non Filer — 11.5%</option>
+            </select>
+          </div>
+          <div class="field-group" style="margin-bottom:0">
+            <label>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="color:#185FA5"><circle cx="12" cy="12" r="10"/></svg>
+              Buyer Status — Sec. 236-K
+            </label>
+            <select id="selBuyer" class="buyer-sel" onchange="calcTax()">
+              <option value="filer">Filer — 1.5%</option>
+              <option value="latefiler">Late Filer — 4.5%</option>
+              <option value="nonfiler">Non Filer — 10.5%</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div style="margin-top:1.5rem" id="taxOutput">
+          <div class="calc-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>
+            <strong>Tax breakdown will appear here</strong>
+            Enter Rate per Marla &amp; No. of Marlas — or type a Market Value directly above
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Info note -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:13px;color:var(--ink-soft)">
+      <div><strong style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px">Provincial Tax Breakdown</strong>
+        Mutation Entry Fee (Fixed Rs. 500) + Stamp Duty / Mutation Fee (1%) + DC Council / TMA Fee (1%). All payable by the <strong>Buyer</strong>.</div>
+      <div><strong style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px">Federal FBR Tax Rates</strong>
+        Sec. 236-C (Seller): Filer 4.5%, Late Filer 7.5%, Non-Filer 11.5%. &nbsp;|&nbsp; Sec. 236-K (Buyer): Filer 1.5%, Late Filer 4.5%, Non-Filer 10.5%.</div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>
+  <strong>Mutation Tax Calculator</strong> &nbsp;·&nbsp; DC Rate Lookup &nbsp;·&nbsp;
+  Revenue Department, District Haripur &nbsp;·&nbsp; Government of Khyber Pakhtunkhwa<br>
+  <span style="font-size:11px;margin-top:5px;display:block">For official use only. Rates subject to change as per Board of Revenue notifications. &nbsp;|&nbsp; FY 2024–25</span>
+</footer>
+
+<script>
+/* ===== TAB SWITCHING ===== */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+/* ===== DATA ===== */
+const DATA = [{"mouza":"Akhoon Bandi","classification":"Residential","khasras":[],"rate":31395},{"mouza":"Mohri","classification":"Commercial","khasras":["1475","1473","1442","1470","1469","1468","1467","1461","1744/1522","1743/1522","1519","1512","1511","1510","1477","1533","1530","1529","1528","1526/2","1526/1","1525","1578","1770/1583","1769/1583'","1580","1586","1584","1535","1564","1565","1566","1568","1575","1576","1577","1545","1544","1546","1555","1556","1562","1563","1884/1537","1583/1537"],"rate":252000},{"mouza":"Mohri","classification":"Residential","khasras":[],"rate":57330},{"mouza":"Nikka Pah","classification":"Commercial","khasras":[],"rate":198450},{"mouza":"Nikka Pah","classification":"Commercial","khasras":["61","62","63","64","66","68","69","70","71","73","74","76","77","78","79","80","82","84","265/121","314/120","263/120","213/120","118","110","109","108","95","87","203/129","216/127","215/127","205/123","206/124","207/124","209/125","210/125","212/125","213/126","215/127","266/121","223/87","224/87","219/75","218/75","231/93","232/93","316/94","317/94","234/95","301/72","302/72","312/67","313/67","279/67","281/119","282/119","204/119","208/123","208/124","211/125","214/126","217/127","202/129"],"rate":226800},{"mouza":"Nikka Pah","classification":"Residential","khasras":[],"rate":68250},{"mouza":"Ali Khan","classification":"Commercial","khasras":["201","203","214","215","218","219","225","228","229","230","243","244","245","247","248","249","250","251","257","260","262","263","264","265","266","267","268","269","270","271","285","287","295","296","298","302","304","307","310","325","339","340","341","342","343","345","346","348","350","361","362","472","473","474","475","476","477","479","486","487","510","511","512","516","517","520","522","528","529","530","531","532","533","534","535","544","545","546","547","548","549","550","551","552","554","560","561","563","564","565","566","567","568","569","570","573","574","575","576","577","578","579","580","581","582","583","584","585"],"rate":808500},{"mouza":"Ali Khan","classification":"Residential","khasras":[],"rate":210000},{"mouza":"Moonan","classification":"Residential","khasras":[],"rate":60900},{"mouza":"Bagra","classification":"Commercial","khasras":[],"rate":242550},{"mouza":"Bagra","classification":"Residential","khasras":[],"rate":69300},{"mouza":"Baldhair","classification":"Commercial","khasras":[],"rate":262500},{"mouza":"Baldhair","classification":"Residential","khasras":[],"rate":63000},{"mouza":"Karwala","classification":"Residential","khasras":[],"rate":36750},{"mouza":"Ratta Banna","classification":"Residential","khasras":[],"rate":36750},{"mouza":"Shorag","classification":"Commercial","khasras":[],"rate":68250},{"mouza":"Shorag","classification":"Residential","khasras":[],"rate":47250},{"mouza":"Bajida Jogi Mohra","classification":"Residential","khasras":["1119","1120","1138","1139","1140","1141","1146","1147","1148","1156","1157","1158","1171","1177","1178","1264","1265","1266","1390","1391","1392","1393","1394","1396","1398","1399","1400","1401","1402"],"rate":39690},{"mouza":"Jama","classification":"Residential","khasras":[],"rate":38588},{"mouza":"Bakka","classification":"Commercial","khasras":["2342","2343","2344","2345","2376","2377","2378","2379","2380","2381","2382","2414","2416","2444","2445","2447","2450","2451","2452","2453","2454","2455","2457"],"rate":34650},{"mouza":"Bakka","classification":"Residential","khasras":[],"rate":28875},{"mouza":"Bandi Serraan","classification":"Residential","khasras":[],"rate":48510},{"mouza":"Gulham","classification":"Residential","khasras":[],"rate":27563},{"mouza":"Rarra","classification":"Residential","khasras":[],"rate":27563},{"mouza":"Thalla","classification":"Residential","khasras":[],"rate":27563},{"mouza":"Thipra","classification":"Residential","khasras":[],"rate":27563},{"mouza":"Durshkhel","classification":"Residential","khasras":[],"rate":46200},{"mouza":"Bhera","classification":"Residential","khasras":[],"rate":51975},{"mouza":"Kalupind","classification":"Residential","khasras":[],"rate":33075},{"mouza":"Chamba Pind","classification":"Residential","khasras":[],"rate":36960},{"mouza":"Mohri Malia","classification":"Residential","khasras":[],"rate":33075},{"mouza":"Mohri Pirbaksh","classification":"Residential","khasras":[],"rate":39690},{"mouza":"Changi Bandi","classification":"Commercial","khasras":[],"rate":254100},{"mouza":"Changi Bandi","classification":"Residential","khasras":[],"rate":103950},{"mouza":"Chechian","classification":"Commercial","khasras":["13","46","50","51","53","81","82","83","84","85","122","123","124","126","127","128","129","130","197","203","204","205","206","207","208","209","210","211","221","222","223","226","227","228","239","246","247","248","249","250","251","252","253","254","261","262","263","264","265","266","267","268","269","287","296","298","299","300","316","317","318","319","320","321","327","328","329","330"],"rate":202860},{"mouza":"Chechian","classification":"Residential","khasras":[],"rate":44100},{"mouza":"Doian Khushki","classification":"Residential","khasras":[],"rate":44100},{"mouza":"Pind Kamal Khan","classification":"Residential","khasras":[],"rate":44100},{"mouza":"Chak Sikanderpur","classification":"Commercial","khasras":[],"rate":207900},{"mouza":"Chak Sikanderpur","classification":"Residential","khasras":["159","160","161","164","165","166","167","168","173","174","176","177","178","182","183"],"rate":173250},{"mouza":"Chohar Shareef","classification":"Commercial","khasras":[],"rate":219450},{"mouza":"Chohar Shareef","classification":"Residential","khasras":["368","385","386","387","388","390","394","398","399","409","411","428","505","507","508","509","516","540","542","543","545","554","558","559","560","563","608","609","610","611","612","613","614","623","625","628","631","632","633","634","645","646","656","666","667","668","847","848","849","850","938","939","947","948","950","951","953","956","957","958","960","965"],"rate":199815},{"mouza":"Qazian","classification":"Commercial","khasras":[],"rate":207900},{"mouza":"Qazian","classification":"Residential","khasras":["312","313","314","319","320","321","325","326","327","328","330","343","351","352","353","354","355","356","357","358","359","360","361/1","362","363","364","365","368","380","381","382","477"],"rate":173250},{"mouza":"Bhand","classification":"Commercial","khasras":["112","113","114","115","116","117","120","121","122","125","126","128","132","139","140","141","143","148","149","150","205","206","209","210","211"],"rate":150000},{"mouza":"Bhand","classification":"Residential","khasras":[],"rate":80000},{"mouza":"Darwesh","classification":"Commercial","khasras":[],"rate":1984500},{"mouza":"Darwesh","classification":"Residential","khasras":[],"rate":231000},{"mouza":"Dehdan","classification":"Commercial","khasras":[],"rate":386000},{"mouza":"Dehdan","classification":"Residential","khasras":[],"rate":134500},{"mouza":"Dingi","classification":"Commercial","khasras":[],"rate":441000},{"mouza":"Dingi","classification":"Residential","khasras":[],"rate":115500},{"mouza":"Jhar","classification":"Commercial","khasras":[],"rate":137000},{"mouza":"Jhar","classification":"Residential","khasras":[],"rate":105840},{"mouza":"Motian","classification":"Commercial","khasras":[],"rate":360500},{"mouza":"Motian","classification":"Residential","khasras":[],"rate":104500},{"mouza":"Dheenda","classification":"Commercial","khasras":[],"rate":219450},{"mouza":"Dheenda","classification":"Residential","khasras":[],"rate":199815},{"mouza":"Kalas","classification":"Commercial","khasras":[],"rate":219450},{"mouza":"Kalas","classification":"Residential","khasras":[],"rate":199815},{"mouza":"Dheri","classification":"Commercial","khasras":[],"rate":600000},{"mouza":"Dheri","classification":"Residential","khasras":[],"rate":160000},{"mouza":"Malkyar","classification":"Commercial","khasras":[],"rate":600000},{"mouza":"Malkyar","classification":"Residential","khasras":[],"rate":160000},{"mouza":"Bajwala","classification":"Residential","khasras":[],"rate":36960},{"mouza":"Barthal","classification":"Residential","khasras":[],"rate":46200},{"mouza":"Bhutri","classification":"Residential","khasras":[],"rate":36960},{"mouza":"Dureshkhel","classification":"Commercial","khasras":[],"rate":138600},{"mouza":"Dureshkhel","classification":"Residential","khasras":[],"rate":46200},{"mouza":"Garhi Serian","classification":"Residential","khasras":[],"rate":46200},{"mouza":"Phula Gali","classification":"Residential","khasras":[],"rate":25410},{"mouza":"Gherrian","classification":"Residential","khasras":[],"rate":99225},{"mouza":"Koklian","classification":"Residential","khasras":[],"rate":33075},{"mouza":"Model Town Sarai","classification":"Commercial","khasras":[],"rate":330750},{"mouza":"Model Town Sarai","classification":"Residential","khasras":[],"rate":165375},{"mouza":"Haripur","classification":"Commercial","khasras":[],"rate":1410000},{"mouza":"Haripur","classification":"Residential","khasras":[],"rate":420000},{"mouza":"Haripur (Urban)","classification":"Commercial","khasras":[],"rate":4000000},{"mouza":"Haripur (Urban)","classification":"Residential","khasras":[],"rate":730000},{"mouza":"Sikanderpur","classification":"Commercial","khasras":[],"rate":850000},{"mouza":"Sikanderpur","classification":"Residential","khasras":[],"rate":350000},{"mouza":"Sikanderpur (Urba","classification":"Commercial","khasras":[],"rate":4000000},{"mouza":"Sikanderpur (Urba","classification":"Residential","khasras":[],"rate":670000},{"mouza":"Khalabat","classification":"Industrial(SIDB)","khasras":[],"rate":78},{"mouza":"Haripur","classification":"50 feet on both","khasras":[],"rate":8000000},{"mouza":"Padhana","classification":"Commercial","khasras":[],"rate":126788},{"mouza":"Alooli","classification":"Commercial","khasras":[],"rate":138600},{"mouza":"Alooli","classification":"Residential","khasras":[],"rate":66150},{"mouza":"Jattipind","classification":"Commercial","khasras":[],"rate":138600},{"mouza":"Jattipind","classification":"Residential","khasras":[],"rate":66150},{"mouza":"Kaag","classification":"Commercial","khasras":[],"rate":132825},{"mouza":"Kaag","classification":"Residential","khasras":[],"rate":66150},{"mouza":"Chatti Dhaki","classification":"Residential","khasras":[],"rate":17640},{"mouza":"Kailag","classification":"Residential","khasras":[],"rate":27563},{"mouza":"Qazi Mera","classification":"Residential","khasras":[],"rate":19845},{"mouza":"Toru Dhok","classification":"Residential","khasras":[],"rate":19845},{"mouza":"Abdullah Pur","classification":"Residential","khasras":[],"rate":51975},{"mouza":"Ghania","classification":"Residential","khasras":[],"rate":33075},{"mouza":"Kangra","classification":"Commercial","khasras":[],"rate":606375},{"mouza":"Kangra","classification":"Residential","khasras":[],"rate":110250},{"mouza":"Kangra Township","classification":"Commercial","khasras":[],"rate":297675},{"mouza":"Kangra Township","classification":"Residential","khasras":[],"rate":159863},{"mouza":"Todu","classification":"Residential","khasras":[],"rate":30870},{"mouza":"Khalabat Townshi","classification":"Commercial","khasras":[],"rate":1598625},{"mouza":"Khalabat Townshi","classification":"Residential","khasras":[],"rate":330750},{"mouza":"Dobandi","classification":"Commercial","khasras":[],"rate":275625},{"mouza":"Dobandi","classification":"Residential","khasras":[],"rate":77175},{"mouza":"Kholian","classification":"Commercial","khasras":[],"rate":257250},{"mouza":"Kholian","classification":"Residential","khasras":[],"rate":78750},{"mouza":"Ganja Kamala","classification":"Commercial","khasras":[],"rate":154350},{"mouza":"Ganja Kamala","classification":"Residential","khasras":[],"rate":82688},{"mouza":"Kot Najibullah","classification":"Commercial","khasras":[],"rate":771750},{"mouza":"Kot Najibullah","classification":"Commercial (KP","khasras":[],"rate":13230000},{"mouza":"Kot Najibullah","classification":"Industrial (KPEZ","khasras":[],"rate":13230000},{"mouza":"Kot Najibullah","classification":"Residential","khasras":[],"rate":110250},{"mouza":"Dobandi","classification":"Residential","khasras":[],"rate":55125},{"mouza":"Makhan","classification":"Residential","khasras":[],"rate":41895},{"mouza":"Bandi Gulu","classification":"Commercial","khasras":[],"rate":288750},{"mouza":"Bandi Gulu","classification":"Residential","khasras":[],"rate":60060},{"mouza":"Bandi Sirya","classification":"Commercial","khasras":[],"rate":288750},{"mouza":"Bandi Sirya","classification":"Residential","khasras":[],"rate":82005},{"mouza":"Gulu Bandi","classification":"Commercial (KP","khasras":[],"rate":13230000},{"mouza":"Gulu Bandi","classification":"Industrial (KPEZ","khasras":[],"rate":13230000},{"mouza":"Islampur","classification":"Residential","khasras":[],"rate":44100},{"mouza":"Kali Tarar Tarli","classification":"Residential","khasras":[],"rate":47408},{"mouza":"Kali Tarar Utli","classification":"Residential","khasras":[],"rate":48510},{"mouza":"Mang","classification":"Commercial","khasras":[],"rate":312008},{"mouza":"Mang","classification":"Residential","khasras":[],"rate":84893},{"mouza":"Sirya","classification":"Commercial","khasras":[],"rate":270113},{"mouza":"Sirya","classification":"Residential","khasras":[],"rate":59535},{"mouza":"Mankarai","classification":"Residential","khasras":[],"rate":44100},{"mouza":"Alam","classification":"Commercial","khasras":[],"rate":393593},{"mouza":"Alam","classification":"Residential","khasras":[],"rate":104738},{"mouza":"Doian Aabi","classification":"Commercial","khasras":[],"rate":393593},{"mouza":"Doian Aabi","classification":"Residential","khasras":[],"rate":115763},{"mouza":"Meelam","classification":"Commercial","khasras":[],"rate":393593},{"mouza":"Meelam","classification":"Residential","khasras":[],"rate":99225},{"mouza":"Chak Talokar","classification":"Residential","khasras":[],"rate":29768},{"mouza":"Kahal","classification":"Residential","khasras":[],"rate":51818},{"mouza":"Kamalpur","classification":"Residential","khasras":[],"rate":36383},{"mouza":"Mirpur","classification":"Residential","khasras":[],"rate":46305},{"mouza":"Pind Jamal Khan","classification":"Residential","khasras":[],"rate":33075},{"mouza":"Chatri","classification":"Residential","khasras":[],"rate":46200},{"mouza":"Ding","classification":"Residential","khasras":[],"rate":31973},{"mouza":"Kotha Pir Kot","classification":"Residential","khasras":[],"rate":59220},{"mouza":"Koka","classification":"Residential","khasras":[],"rate":45360},{"mouza":"Noordi","classification":"Residential","khasras":[],"rate":68040},{"mouza":"Noorpur Paswal","classification":"Residential","khasras":[],"rate":19845},{"mouza":"Pandak","classification":"Commercial","khasras":[],"rate":606375},{"mouza":"Pandak","classification":"Residential","khasras":[],"rate":220500},{"mouza":"Pandak (Urban)","classification":"Commercial","khasras":[],"rate":3748500},{"mouza":"Pandak (Urban)","classification":"Residential","khasras":[],"rate":716625},{"mouza":"Paharo","classification":"Commercial","khasras":[],"rate":220500},{"mouza":"Paharo","classification":"Residential","khasras":[],"rate":55125},{"mouza":"Panian","classification":"Commercial","khasras":[],"rate":220500},{"mouza":"Panian","classification":"Residential","khasras":[],"rate":60638},{"mouza":"Kahka","classification":"Commercial","khasras":[],"rate":88200},{"mouza":"Kahka","classification":"Residential","khasras":[],"rate":49613},{"mouza":"Mohra Mamdu","classification":"Commercial","khasras":[],"rate":82688},{"mouza":"Mohra Mamdu","classification":"Residential","khasras":[],"rate":41895},{"mouza":"Pharralah","classification":"Commercial","khasras":[],"rate":88200},{"mouza":"Pharralah","classification":"Residential","khasras":[],"rate":49613},{"mouza":"Pind Hashim Khan","classification":"Residential","khasras":[],"rate":38588},{"mouza":"Teer","classification":"Residential","khasras":[],"rate":27563},{"mouza":"Laddah","classification":"Residential","khasras":[],"rate":24255},{"mouza":"Sarai Gadai","classification":"Commercial","khasras":[],"rate":159863},{"mouza":"Sarai Gadai","classification":"Residential","khasras":[],"rate":71663},{"mouza":"Banda Munir Khan","classification":"Residential","khasras":[],"rate":24000},{"mouza":"Sarai Naimat Khan","classification":"Commercial","khasras":[],"rate":66000},{"mouza":"Sarai Naimat Khan","classification":"Residential","khasras":[],"rate":33000},{"mouza":"Serian Daram Pani","classification":"Residential","khasras":[],"rate":24500},{"mouza":"Talhad","classification":"Residential","khasras":[],"rate":13650},{"mouza":"Ghaar","classification":"Residential","khasras":[],"rate":60000},{"mouza":"Sarai Saleh","classification":"Commercial","khasras":[],"rate":600000},{"mouza":"Sarai Saleh","classification":"Residential","khasras":[],"rate":150000},{"mouza":"Sarai Saleh (Urban","classification":"Commercial","khasras":[],"rate":3400000},{"mouza":"Sarai Saleh (Urban","classification":"Residential","khasras":[],"rate":650000},{"mouza":"Gudwallian","classification":"Residential","khasras":[],"rate":24255},{"mouza":"Sari","classification":"Residential","khasras":[],"rate":27563},{"mouza":"Ghaiba","classification":"Residential","khasras":[],"rate":44100},{"mouza":"Kalawan","classification":"Commercial","khasras":[],"rate":187425},{"mouza":"Kalawan","classification":"Residential","khasras":[],"rate":60638},{"mouza":"Mera Toot","classification":"Commercial","khasras":[],"rate":187425},{"mouza":"Mera Toot","classification":"Residential","khasras":[],"rate":68355},{"mouza":"Shah Maqsood","classification":"Commercial","khasras":[],"rate":385875},{"mouza":"Shah Maqsood","classification":"Residential","khasras":[],"rate":82688},{"mouza":"Thanda Choa","classification":"Commercial","khasras":[],"rate":264600},{"mouza":"Thanda Choa","classification":"Residential","khasras":[],"rate":77175},{"mouza":"Chak Shah Muham","classification":"Residential","khasras":[],"rate":60638},{"mouza":"Muradabad","classification":"Residential","khasras":[],"rate":68355},{"mouza":"Shah Muhammad","classification":"Commercial","khasras":[],"rate":771750},{"mouza":"Shah Muhammad","classification":"Residential","khasras":[],"rate":220500},{"mouza":"Gher Khan","classification":"Residential","khasras":[],"rate":110250},{"mouza":"Talokar","classification":"Commercial","khasras":[],"rate":220500},{"mouza":"Talokar","classification":"Residential","khasras":[],"rate":165375}];
+
+/* ===== DC LOOKUP ===== */
+const selMouza = document.getElementById('selMouza');
+const selClass = document.getElementById('selClass');
+const inpKhasra = document.getElementById('inpKhasra');
+const btnClear = document.getElementById('btnClear');
+const resultsDiv = document.getElementById('results');
+
+const uniqueMouzas = [...new Set(DATA.map(d => d.mouza))].sort();
+uniqueMouzas.forEach(m => {
+  const o = document.createElement('option');
+  o.value = m; o.textContent = m;
+  selMouza.appendChild(o);
+});
+
+selMouza.addEventListener('change', () => {
+  const m = selMouza.value;
+  selClass.innerHTML = '<option value="">— Select Classification —</option>';
+  inpKhasra.value = '';
+  resultsDiv.innerHTML = '';
+  btnClear.style.display = 'none';
+  if (m) {
+    const classes = [...new Set(DATA.filter(d => d.mouza === m).map(d => d.classification))].sort();
+    classes.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c; o.textContent = c;
+      selClass.appendChild(o);
+    });
+    selClass.disabled = false;
+  } else {
+    selClass.disabled = true;
+  }
+});
+
+function doSearch() {
+  const mouza = selMouza.value.trim();
+  const cls = selClass.value.trim();
+  const khasra = inpKhasra.value.trim();
+  if (!mouza) { showMsg('info','Select a Mouza','Please select a Mouza Name to begin your search.'); return; }
+  if (!cls) { showMsg('info','Select Classification','Please select a Classification type after choosing a Mouza.'); return; }
+  let pool = DATA.filter(d => d.mouza === mouza && d.classification === cls);
+  btnClear.style.display = 'block';
+  if (khasra) {
+    const withK = pool.filter(d => d.khasras.length > 0 && d.khasras.some(k => k.toLowerCase() === khasra.toLowerCase()));
+    const gen = pool.filter(d => d.khasras.length === 0);
+    const results = withK.length > 0 ? withK : gen;
+    if (results.length === 0) showMsg('warning','No Records Found','No DC Rate found for <strong>'+mouza+'</strong> — <strong>'+cls+'</strong> — Khasra No. <strong>'+khasra+'</strong>.');
+    else showResults(results, mouza, cls, khasra, withK.length > 0);
+  } else {
+    if (pool.length === 0) showMsg('warning','No Records Found','No DC Rate found for <strong>'+mouza+'</strong> and Classification <strong>'+cls+'</strong>.');
+    else showResults(pool, mouza, cls, '', false);
+  }
+}
+
+function showResults(rows, mouza, cls, khasra, exactMatch) {
+  const label = khasra ? mouza+' · '+cls+' · Khasra '+khasra : mouza+' · '+cls;
+  const sub = khasra ? (exactMatch ? 'Exact Khasra match found' : 'General rate — Khasra not individually listed') : 'All entries for this Mouza & Classification';
+  let html = '<div class="result-block" style="margin-top:1rem">';
+  html += '<div class="result-header"><div><h3>'+label+'</h3><p>'+sub+'</p></div><span class="result-count">'+rows.length+' record'+(rows.length!==1?'s':'')+'</span></div>';
+  html += '<table class="rtable"><thead><tr><th>Mouza</th><th>Classification</th><th>Khasra</th><th>DC Rate (Rs./Marla)</th></tr></thead><tbody>';
+  rows.forEach(r => {
+    let khasraCell = '<span class="td-khasra">General (all Khasra)</span>';
+    if (r.khasras.length > 0) {
+      if (khasra && exactMatch) khasraCell = '<span class="td-khasra">'+khasra+'</span>';
+      else {
+        const shown = r.khasras.slice(0,6).join(', ');
+        const more = r.khasras.length > 6 ? ' <span style="color:var(--gold-mid);font-weight:700">+'+(r.khasras.length-6)+' more</span>' : '';
+        khasraCell = '<span class="td-khasra">'+shown+more+'</span>';
+      }
+    }
+    html += '<tr><td class="td-mouza">'+r.mouza+'</td><td><span class="td-class">'+r.classification+'</span></td><td>'+khasraCell+'</td><td class="td-rate">Rs. '+r.rate.toLocaleString('en-PK')+'</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  resultsDiv.innerHTML = html;
+}
+
+function showMsg(type, title, body) {
+  const icon = type==='warning'
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="#6A6560" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+  resultsDiv.innerHTML = '<div class="msg-box '+type+'" style="margin-top:1rem"><div class="msg-icon">'+icon+'</div><div class="msg-text"><h4>'+title+'</h4><p>'+body+'</p></div></div>';
+}
+
+function clearSearch() {
+  selMouza.value = '';
+  selClass.innerHTML = '<option value="">— Select Classification —</option>';
+  selClass.disabled = true;
+  inpKhasra.value = '';
+  resultsDiv.innerHTML = '';
+  btnClear.style.display = 'none';
+}
+
+document.getElementById('inpKhasra').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+
+/* ===== MARLA CALCULATOR ===== */
+function calcMarlaValue() {
+  const rate = parseFloat(document.getElementById('inpRatePerMarla').value) || 0;
+  const marlas = parseFloat(document.getElementById('inpMarlas').value) || 0;
+  const total = rate * marlas;
+  const disp = document.getElementById('totalMarketDisplay');
+  if (total > 0) {
+    disp.textContent = 'Rs. ' + Math.round(total).toLocaleString('en-PK');
+    disp.style.color = 'var(--green)';
+    document.getElementById('inpMarket').value = '';
+  } else {
+    disp.textContent = 'Rs. —';
+    disp.style.color = 'var(--muted)';
+  }
+  calcTax();
+}
+
+function onManualMarket() {
+  document.getElementById('inpRatePerMarla').value = '';
+  document.getElementById('inpMarlas').value = '';
+  document.getElementById('totalMarketDisplay').textContent = 'Rs. —';
+  document.getElementById('totalMarketDisplay').style.color = 'var(--muted)';
+  calcTax();
+}
+
+/* ===== TAX CALCULATOR ===== */
+function fmt(n) { return 'Rs. ' + Math.round(n).toLocaleString('en-PK'); }
+
+function calcTax() {
+  const ratePerMarla = parseFloat(document.getElementById('inpRatePerMarla').value) || 0;
+  const marlas = parseFloat(document.getElementById('inpMarlas').value) || 0;
+  const manualMV = parseFloat(document.getElementById('inpMarket').value) || 0;
+  let mv = 0;
+  if (ratePerMarla > 0 && marlas > 0) mv = ratePerMarla * marlas;
+  else if (manualMV > 0) mv = manualMV;
+
+  const out = document.getElementById('taxOutput');
+  if (mv <= 0) {
+    out.innerHTML = '<div class="calc-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg><strong>Tax breakdown will appear here</strong>Enter Rate per Marla &amp; No. of Marlas — or type a Market Value directly above</div>';
+    return;
+  }
+
+  const sellerStatus = document.getElementById('selSeller').value;
+  const buyerStatus  = document.getElementById('selBuyer').value;
+
+  const mutFee    = 500;
+  const stampDuty = mv * 0.01;
+  const dcFee     = mv * 0.01;
+  const totalProv = mutFee + stampDuty + dcFee;
+
+  const r236C = { filer:0.045, latefiler:0.075, nonfiler:0.115 };
+  const p236C = { filer:'4.5%', latefiler:'7.5%', nonfiler:'11.5%' };
+  const l236C = { filer:'Filer', latefiler:'Late Filer', nonfiler:'Non Filer' };
+  const r236K = { filer:0.015, latefiler:0.045, nonfiler:0.105 };
+  const p236K = { filer:'1.5%', latefiler:'4.5%', nonfiler:'10.5%' };
+  const l236K = { filer:'Filer', latefiler:'Late Filer', nonfiler:'Non Filer' };
+
+  const tax236C = mv * r236C[sellerStatus];
+  const tax236K = mv * r236K[buyerStatus];
+  const totalBuyer  = totalProv + tax236K;
+  const totalSeller = tax236C;
+
+  out.innerHTML = `
+    <div class="section-label" style="margin-bottom:1rem">Calculated on: <strong style="color:var(--green-light);font-size:15px">${fmt(mv)}</strong></div>
+    <div class="tax-3col">
+      <div class="prov-box">
+        <div class="tbox-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          Provincial Taxes
+          <span class="tbox-who" style="background:var(--green)">BUYER</span>
+        </div>
+        <div class="tbox-row">
+          <div><div class="tbox-row-label">Mutation Entry Fee</div><div class="tbox-row-pct">Fixed amount</div></div>
+          <div class="tbox-row-val">${fmt(mutFee)}</div>
+        </div>
+        <div class="tbox-row">
+          <div><div class="tbox-row-label">Stamp / Mutation Fee</div><div class="tbox-row-pct">1% of value</div></div>
+          <div class="tbox-row-val">${fmt(stampDuty)}</div>
+        </div>
+        <div class="tbox-row">
+          <div><div class="tbox-row-label">DC Council / TMA Fee</div><div class="tbox-row-pct">1% of value</div></div>
+          <div class="tbox-row-val">${fmt(dcFee)}</div>
+        </div>
+        <div class="tbox-total">
+          <span class="tbox-total-label">Total Provincial</span>
+          <span class="tbox-total-val">${fmt(totalProv)}</span>
+        </div>
+      </div>
+
+      <div class="seller-box">
+        <div class="tbox-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+          Sec. 236-C — FBR
+          <span class="tbox-who" style="background:var(--seller)">SELLER</span>
+        </div>
+        <div class="tbox-row">
+          <div><div class="tbox-row-label">${l236C[sellerStatus]}</div><div class="tbox-row-pct">${p236C[sellerStatus]} of market value</div></div>
+          <div class="tbox-row-val" style="color:var(--seller)">${fmt(tax236C)}</div>
+        </div>
+        <div class="tbox-total" style="background:var(--seller)">
+          <span class="tbox-total-label">Total 236-C</span>
+          <span class="tbox-total-val">${fmt(tax236C)}</span>
+        </div>
+      </div>
+
+      <div class="fed-box">
+        <div class="tbox-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+          Sec. 236-K — FBR
+          <span class="tbox-who" style="background:var(--fed-mid)">BUYER</span>
+        </div>
+        <div class="tbox-row">
+          <div><div class="tbox-row-label">${l236K[buyerStatus]}</div><div class="tbox-row-pct">${p236K[buyerStatus]} of market value</div></div>
+          <div class="tbox-row-val" style="color:var(--fed-mid)">${fmt(tax236K)}</div>
+        </div>
+        <div class="tbox-total" style="background:var(--fed)">
+          <span class="tbox-total-label">Total 236-K</span>
+          <span class="tbox-total-val">${fmt(tax236K)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grand-totals">
+      <div class="grand-title">Grand Total Summary</div>
+      <div class="grand-grid">
+        <div class="grand-card buyer">
+          <div class="grand-card-lbl">Total Payable by Buyer</div>
+          <div class="grand-card-val">${fmt(totalBuyer)}</div>
+          <div class="grand-card-sub">Provincial Taxes + Section 236-K (${p236K[buyerStatus]})</div>
+        </div>
+        <div class="grand-card seller">
+          <div class="grand-card-lbl">Total Payable by Seller</div>
+          <div class="grand-card-val">${fmt(totalSeller)}</div>
+          <div class="grand-card-sub">Section 236-C · ${p236C[sellerStatus]} of Market Value</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
