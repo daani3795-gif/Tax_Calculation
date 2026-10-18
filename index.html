@@ -395,8 +395,7 @@ footer strong{color:rgba(255,255,255,0.75);font-weight:600}
               Seller Status — Sec. 236-C
             </label>
             <select id="selSeller" class="seller-sel" onchange="calcTax()">
-              <option value="filer">Filer — 4.5%</option>
-              <option value="latefiler">Late Filer — 7.5%</option>
+              <option value="filer">Filer — 2.75%</option>
               <option value="nonfiler">Non Filer — 11.5%</option>
             </select>
           </div>
@@ -406,8 +405,7 @@ footer strong{color:rgba(255,255,255,0.75);font-weight:600}
               Buyer Status — Sec. 236-K
             </label>
             <select id="selBuyer" class="buyer-sel" onchange="calcTax()">
-              <option value="filer">Filer — 1.5%</option>
-              <option value="latefiler">Late Filer — 4.5%</option>
+              <option value="filer">Filer — 1.25%</option>
               <option value="nonfiler">Non Filer — 10.5%</option>
             </select>
           </div>
@@ -430,7 +428,7 @@ footer strong{color:rgba(255,255,255,0.75);font-weight:600}
       <div><strong style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px">Provincial Tax Breakdown</strong>
         Mutation Entry Fee (Fixed Rs. 500) + Stamp Duty / Mutation Fee (1%) + DC Council / TMA Fee (1%). All payable by the <strong>Buyer</strong>.</div>
       <div><strong style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px">Federal FBR Tax Rates</strong>
-        Sec. 236-C (Seller): Filer 4.5%, Late Filer 7.5%, Non-Filer 11.5%. &nbsp;|&nbsp; Sec. 236-K (Buyer): Filer 1.5%, Late Filer 4.5%, Non-Filer 10.5%.</div>
+        Sec. 236-C (Seller): Filer 2.75%, Non-Filer 11.5%. &nbsp;|&nbsp; Sec. 236-K (Buyer): Filer 1.25%, Non-Filer 10.5%.</div>
     </div>
 
   </div>
@@ -644,12 +642,12 @@ function calcTax() {
   const dcFee     = mv * 0.01;
   const totalProv = mutFee + stampDuty + dcFee;
 
-  const r236C = { filer:0.045, latefiler:0.075, nonfiler:0.115 };
-  const p236C = { filer:'4.5%', latefiler:'7.5%', nonfiler:'11.5%' };
-  const l236C = { filer:'Filer', latefiler:'Late Filer', nonfiler:'Non Filer' };
-  const r236K = { filer:0.015, latefiler:0.045, nonfiler:0.105 };
-  const p236K = { filer:'1.5%', latefiler:'4.5%', nonfiler:'10.5%' };
-  const l236K = { filer:'Filer', latefiler:'Late Filer', nonfiler:'Non Filer' };
+  const r236C = { filer:0.0275, nonfiler:0.115 };
+  const p236C = { filer:'2.75%', nonfiler:'11.5%' };
+  const l236C = { filer:'Filer', nonfiler:'Non Filer' };
+  const r236K = { filer:0.0125, nonfiler:0.105 };
+  const p236K = { filer:'1.25%', nonfiler:'10.5%' };
+  const l236K = { filer:'Filer', nonfiler:'Non Filer' };
 
   const tax236C = mv * r236C[sellerStatus];
   const tax236K = mv * r236K[buyerStatus];
